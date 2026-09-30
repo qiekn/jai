@@ -1,6 +1,6 @@
-#import "GetRect";  // Other imports are below, but the point of this example is to use GetRect so this #import goes here.
+#import "Gui";  // Other imports are below, but the point of this example is to use GetRect so this #import goes here.
 
-my_window: Window_Type;
+the_window: Window_Type;
 
 SCALE :: 1;  // I use this during development to quickly make the window real big.
 
@@ -61,9 +61,8 @@ main :: () {
         Windows.timeBeginPeriod(1);
     }
 
-    my_window = create_window(window_width, window_height, "ck: GetRect Playground");
-
-    Simp.set_render_target(my_window);
+    the_window = create_window(window_width, window_height, "ck: GetRect Playground");
+    Simp.set_render_target(the_window);
 
     init_fonts();
     ui_init();
@@ -85,7 +84,7 @@ main :: () {
         for Input.get_window_resizes() {
             Simp.update_window(it.window);
 
-            if it.window == my_window {
+            if it.window == the_window {
                 should_reinit :=
                 (it.width  != window_width) ||
                 (it.height != window_height);
@@ -99,17 +98,21 @@ main :: () {
             }
         }
 
-        for event: Input.events_this_frame {
-            if event.type == .QUIT {
+        for it: Input.events_this_frame {
+            if it.type == .QUIT {
                 quit = true;
             }
 
             // Let GetRect process mouse / keyboard input.
-            getrect_handle_event(event);
+            getrect_handle_event(it);
 
-            if event.type == .KEYBOARD {
-                if event.key_pressed && event.key_code == .ESCAPE {
-                    active_widget_deactivate_all();
+            if it.type == .KEYBOARD {
+                if !it.key_pressed continue;
+                key := it.key_code;
+
+                if key == {
+                    case .ESCAPE;
+                        active_widget_deactivate_all();
                 }
             }
         }
@@ -150,10 +153,10 @@ draw_one_frame :: () {
     // Tell GetRect about this frame.
     //
 
-    x, y, width, height := get_dimensions(my_window, true);
+    x, y, width, height := get_dimensions(the_window, true);
 
     ui_per_frame_update(
-        my_window,
+        the_window,
         width,
         height,
         current_time
@@ -217,7 +220,7 @@ draw_one_frame :: () {
     // Present frame.
     //
 
-    Simp.swap_buffers(my_window);
+    Simp.swap_buffers(the_window);
 }
 
 init_fonts :: () {
@@ -267,8 +270,8 @@ draw_subwindow_text :: (state: *Subwindow_State, r: Rect, data: *void) {
 
 // ----------------------------------------------------------------------------: imports
 
-Simp  :: #import "Simp";
-Input :: #import "Input";
+using Simp  :: #import "Simp";
+using Input :: #import "Input";
 
 #import "Window_Creation";
 #import "Basic";
