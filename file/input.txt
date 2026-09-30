@@ -1,1 +1,16 @@
-Hello, Sailor!
+!echo Hello Sailor!
+!print Hello Sailor!
+
+!float 1.2
+
+Hello Sailor!
+Hello Sailor!
+Hello Sailor!
+Hello Sailor!
+Hello Sailor!
+Hello Sailor!
+Hello Sailor!
+Hello Sailor!
+Hello Sailor!
+
+FINAL
