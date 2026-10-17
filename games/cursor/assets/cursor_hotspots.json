@@ -1,0 +1,74 @@
+{
+	"hotspots": [
+		{
+			"path": "assets/cursor.png",
+			"x": 4.25,
+			"y": 0
+		},
+		{
+			"path": "assets/help.png",
+			"x": 4.25,
+			"y": 0
+		},
+		{
+			"path": "assets/link.png",
+			"x": 18,
+			"y": 0
+		},
+		{
+			"path": "assets/person.png",
+			"x": 18,
+			"y": 0
+		},
+		{
+			"path": "assets/pin.png",
+			"x": 18,
+			"y": 0
+		},
+		{
+			"path": "assets/handwriting.png",
+			"x": 2,
+			"y": 0
+		},
+		{
+			"path": "assets/text.png",
+			"x": 16,
+			"y": 25
+		},
+		{
+			"path": "assets/cross.png",
+			"x": 23,
+			"y": 23
+		},
+		{
+			"path": "assets/move.png",
+			"x": 32,
+			"y": 32
+		},
+		{
+			"path": "assets/horz.png",
+			"x": 32,
+			"y": 32
+		},
+		{
+			"path": "assets/vert.png",
+			"x": 32,
+			"y": 32
+		},
+		{
+			"path": "assets/dgn1.png",
+			"x": 32,
+			"y": 32
+		},
+		{
+			"path": "assets/dgn2.png",
+			"x": 32,
+			"y": 32
+		},
+		{
+			"path": "assets/unavailiable.png",
+			"x": 18,
+			"y": 20
+		}
+	]
+}

@@ -32,7 +32,6 @@ main :: () {
             }
         }
     }
-    // print("%\n", content);
 
     /*
     // WRITE
