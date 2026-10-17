@@ -1,4 +1,4 @@
-#import "Gui";  // Other imports are below, but the point of this example is to use GetRect so this #import goes here.
+#import "GetRect";  // Other imports are below, but the point of this example is to use GetRect so this #import goes here.
 
 the_window: Window_Type;
 
@@ -98,7 +98,7 @@ main :: () {
             }
         }
 
-        for it: Input.events_this_frame {
+        for events_this_frame {
             if it.type == .QUIT {
                 quit = true;
             }
@@ -135,18 +135,8 @@ draw_one_frame :: () {
     set_default_theme(theme);
 
 
-    //
-    // Clear screen
-    //
-
     bg := theme.background_color;
-
-    Simp.clear_render_target(
-        bg.x,
-        bg.y,
-        bg.z,
-        1
-    );
+    Simp.clear_render_target(bg.x, bg.y, bg.z, 1);
 
 
     //
@@ -154,13 +144,7 @@ draw_one_frame :: () {
     //
 
     x, y, width, height := get_dimensions(the_window, true);
-
-    ui_per_frame_update(
-        the_window,
-        width,
-        height,
-        current_time
-    );
+    ui_per_frame_update(the_window, width, height, current_time);
 
 
     //
@@ -168,18 +152,9 @@ draw_one_frame :: () {
     //
 
     label_theme := theme.label_theme;
-
     label_theme.font = title_font;
-
     label_height := title_font.character_height * 1.5;
-
-    title_rect := get_rect(
-        0,
-        window_height - label_height,
-        xx window_width,
-        label_height
-    );
-
+    title_rect := get_rect(0, window_height - label_height, xx window_width, label_height);
     label(title_rect, "Some Widgets", *label_theme);
 
 
@@ -187,8 +162,8 @@ draw_one_frame :: () {
     // UI components will go here later.
     //
     if !subwindow_initted {
-        r := get_rect(200, 200, 700, 500);
-        subwindow_info_text.rect       = r;
+        rect := get_rect(200, 200, 700, 500);
+        subwindow_info_text.rect       = rect;
         subwindow_info_text.draw       = draw_subwindow_text;
         subwindow_info_text.title_text = "Text";
         subwindow_info_text.open       = true;
@@ -248,7 +223,7 @@ draw_subwindow_text :: (state: *Subwindow_State, r: Rect, data: *void) {
     pad := cast(float) font.default_line_spacing * 0.5;
 
     scroll_theme := theme.scrollable_region_theme;
-    scroll_theme.margin_flags = 0;
+    scroll_theme.scrollbar_size = 0;
 
     region, inside := begin_scrollable_region(r, *scroll_theme);
 
