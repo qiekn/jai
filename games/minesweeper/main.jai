@@ -1,13 +1,13 @@
 // -----------------------------------------------------------------------------: globals
 
 the_window : Window_Type;
-window_width : int = 1280;
+window_width  : int = 1280;
 window_height : int = 720;
 saved_window_info : Saved_Window_Info;
 
 quit := false;
 
-background_color := Vector4.{0.02, 0.15, 0.15, 1};
+background_color := Vector4.{0.16, 0.17, 0.20, 1};
 
 // -----------------------------------------------------------------------------: visual config
 
@@ -514,7 +514,7 @@ draw_texture :: (texture: *Texture, x: int, y: int, w: int, h: int, u0: float = 
   p3 := base_to_screen(x, y + h);
 
   Simp.immediate_quad(p0, p1, p2, p3, Vector4.{1, 1, 1, 1},
-                      .{u0, 0}, .{u1, 0}, .{u1, 1}, .{u0, 1});
+  .{u0, 0}, .{u1, 0}, .{u1, 1}, .{u0, 1});
   Simp.immediate_flush();
 }
 
@@ -576,7 +576,7 @@ point_in_rect :: (px: int, py: int, x: int, y: int, w: int, h: int) -> bool {
 
 base_to_screen :: (x: int, y: int) -> Vector2 {
   return .{cast(float) (game_origin_x + x * game_scale),
-           cast(float) (game_origin_y + y * game_scale)};
+  cast(float) (game_origin_y + y * game_scale)};
 }
 
 #import "Basic";
