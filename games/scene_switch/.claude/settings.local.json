@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "PowerShell(& \"C:\\\\msys64\\\\opt\\\\jai\\\\bin\\\\jai.exe\" -version; & \"C:\\\\msys64\\\\opt\\\\jai\\\\bin\\\\jai.exe\" -help | Select-Object -First 80)",
-      "PowerShell(Remove-Item *)"
-    ]
-  }
-}
