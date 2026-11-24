@@ -2,8 +2,8 @@
 // Press Tab to do transition
 //
 
-
-// ----------------------------------------------------------------------------: color
+// This example is a little stupid.
+// We should write a basic tween system.
 
 INK     :: Vector4.{0.055, 0.075, 0.120, 1};
 CORAL   :: Vector4.{0.880, 0.180, 0.280, 1};
@@ -26,32 +26,11 @@ colors := Vector4.[
 
 pending_color_index := 0; // delay the bg color change until closing phase finished when we do transition
 current_color_index := 0;
-background_color_index := 0;
-
-// ----------------------------------------------------------------------------: transition
-
-Transition_Phase :: enum {
-  NONE;
-  CLOSING;
-  HOLDING;
-  OPENING;
-}
-
-transition_phase := Transition_Phase.NONE;
-transition_timer: float = 0.0;
-transition_duration: float = 0.50;
-transition_hold_duration: float = 0.16;
-transition_open_horizontal := true;
-
-last_time : float64;
-delta_time: float;
-
-// ----------------------------------------------------------------------------: window
 
 window_width  : s32;
 window_height : s32;
 
-the_window : Window_Type;
+the_window  : Window_Type;
 window_info : Saved_Window_Info;
 
 font : *Simp.Dynamic_Font;
@@ -59,7 +38,9 @@ font : *Simp.Dynamic_Font;
 quit := false;
 fullscreen := true;
 
-// ----------------------------------------------------------------------------: entry
+last_time : float64;
+delta_time: float;
+
 
 main :: () {
   init_window();
@@ -68,7 +49,6 @@ main :: () {
   last_time = seconds_since_init();
 
   while !quit {
-    update_time();
     update_window_events();
 
     for events_this_frame {
@@ -78,13 +58,18 @@ main :: () {
         case .KEYBOARD;
           if it.key_pressed == 0 continue;
           if it.key_code == {
-            case .ESCAPE;
-              quit = true;
+            case .ESCAPE; quit = true;
+            case .TAB;
+              if it.shift_pressed prev_scene();
+              else next_scene();
+
+            case #char "J"; next_scene();
+            case #char "K"; prev_scene();
           }
       }
-      handle_blackground_color_switch(it);
     }
 
+    update_time();
     update_transition(delta_time);
 
     clear_background(colors[current_color_index]);
@@ -106,10 +91,11 @@ init_window :: () {
 
   the_window = create_window(0, 0, "ck: the window");
   toggle_fullscreen(the_window, true, *window_info);
-  record := get_window_resizes();
-  if record.count {
-    window_width  = record[0].width;
-    window_height = record[0].height;
+  for get_window_resizes() {
+    if it.window == the_window {
+      window_width  = it.width;
+      window_height = it.height;
+    }
   }
   Simp.set_render_target(the_window, .LEFT_HANDED);
   Simp.update_window(the_window);
@@ -125,35 +111,17 @@ clear_background :: (color : Vector4) {
   Simp.clear_render_target(color.x, color.y, color.z, color.w);
 }
 
-handle_blackground_color_switch :: (e : Event) {
-  if e.type == {
-    case .KEYBOARD;
-      if e.key_code == {
-        case .TAB;
-          if e.shift_pressed
-            prev_background_color();
-          else 
-            next_background_color();
+get_new_index_by_adding :: (delta: int) -> int {
+  index := current_color_index + delta;
+  count := colors.count;
 
-          case #char "J";
-            next_background_color();
+  if index < 0 return count-1;
+  if index >= count return 0;
 
-          case #char "K";
-            prev_background_color();
-      }
-  }
+  return index;
 }
 
-cycle_index :: (index: int, delta: int, count: int) -> int {
-  result := index + delta;
-
-  if result < 0 return count - 1;
-  if result >= count return 0;
-
-  return result;
-}
-
-request_background_color :: (index : int) {
+switch_scene :: (index : int) {
   if transition_phase != .NONE return;
 
   pending_color_index = index;
@@ -161,13 +129,24 @@ request_background_color :: (index : int) {
   transition_timer = 0.0;
 }
 
-next_background_color :: () {
-  request_background_color(cycle_index(current_color_index, 1, colors.count));
+next_scene :: () { switch_scene(get_new_index_by_adding(1)); }
+prev_scene :: () { switch_scene(get_new_index_by_adding(-1)); }
+
+
+// ----------------------------------------------------------------------------: transition
+
+Transition_Phase :: enum {
+  NONE;
+  OPENING;
+  HOLDING; // or sleeping
+  CLOSING;
 }
 
-prev_background_color :: () {
-  request_background_color(cycle_index(current_color_index, -1, colors.count));
-}
+transition_phase := Transition_Phase.NONE;
+transition_timer           := 0.0;
+transition_duration        := 0.50;
+transition_hold_duration   := 0.16;
+transition_open_horizontal := false;
 
 update_transition :: (dt: float) {
   if transition_phase == .NONE return;
@@ -183,7 +162,6 @@ update_transition :: (dt: float) {
 
   if transition_timer < transition_duration return;
 
-  // Hit the duration, we need to change phase.
   if transition_phase == .CLOSING {
     current_color_index = pending_color_index;
     transition_phase = .HOLDING;
@@ -197,41 +175,40 @@ update_transition :: (dt: float) {
 draw_transition :: () {
   if transition_phase == .NONE return;
 
-  w, h := Simp.get_render_dimensions(the_window);
-  vw, vh := cast(float) w, cast(float) h;
+  w, h : float = xx window_width, xx window_height;
 
   p := transition_progress();
-  
-  Simp.set_shader_for_color(true);
-  Simp.immediate_begin();
+
+  set_shader_for_color(true);
+  immediate_begin();
 
   if transition_phase == {
     case .CLOSING;
       close := ease_out(p);
-      x := vw * 0.5 * close;
+      x := w * 0.5 * close;
 
       // Use bottom-left and top-right x,y to draw a rectangle.
-      Simp.immediate_quad(0.0, 0.0, x, vh, BLACK);     // left
-      Simp.immediate_quad(vw - x, 0.0, vw, vh, BLACK); // right
+      immediate_quad(0, 0, x, h, BLACK);     // left
+      immediate_quad(w - x, 0, w, h, BLACK); // right
     case .HOLDING;
-      Simp.immediate_quad(0.0, 0.0, vw, vh, BLACK);
+      immediate_quad(0, 0, w, h, BLACK);
     case .OPENING;
       if (transition_open_horizontal) {
         open :=  1 - ease_in(p);
-        x := vw * 0.5 * open;
+        x := w * 0.5 * open;
 
         // Use bottom-left and top-right x,y to draw a rectangle.
-        Simp.immediate_quad(0.0, 0.0, x, vh, BLACK);
-        Simp.immediate_quad(vw - x, 0.0, vw, vh, BLACK);
+        immediate_quad(0, 0, x, h, BLACK);
+        immediate_quad(w - x, 0, w, h, BLACK);
       } else {
         cover := 1.0 - ease_in(p);
-        y := vh * 0.5 * cover;
+        y := h * 0.5 * cover;
 
-        Simp.immediate_quad(0.0, 0.0, vw, y, BLACK);
-        Simp.immediate_quad(0.0, vh - y, vw, vh, BLACK);
+        immediate_quad(0, 0, w, y, BLACK);
+        immediate_quad(0, h - y, w, h, BLACK);
       }
   }
-  Simp.immediate_flush();
+  immediate_flush();
 }
 
 transition_progress :: () -> float {
@@ -264,7 +241,8 @@ ease_out:: (t: float) -> float {
 }
 
 #import "Basic";
+#import "Math";
+#import "Window_Creation";
+
 #import "Input";
 using Simp :: #import "Simp";
-#import "Window_Creation";
-#import "Math";
